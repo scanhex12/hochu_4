@@ -1,14 +1,22 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 import random
+
 app = FastAPI()
 url_db = {}
+
+class URLItem(BaseModel):
+    url: str
+
 def generate_random_id():
     return ''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", k=6))
+
 @app.post("/create", response_model=dict)
 def create_short_url(item: URLItem):
     short_id = generate_random_id()
     url_db[short_id] = item.url
     return {"id": short_id}
+
 @app.get("/link/{id}", response_model=URLItem)
 def get_original_url(id: str):
     original_url = url_db.get(id)
